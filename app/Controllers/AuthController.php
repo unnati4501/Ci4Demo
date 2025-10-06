@@ -53,7 +53,7 @@ class AuthController extends BaseController
                 'status'  => 'success',
                 'redirect' => base_url('/login')
             ]);        }
-        return view('auth/register', $data);
+        return view('auth/registerajax', $data);
     }
 
     private function _sendVerificationEmail($username, $email, $token)
@@ -102,7 +102,7 @@ class AuthController extends BaseController
     }
 
 
-    public function login() 
+    public function loginsimple() 
     {
         $data = [];
         $userModel = new User();
@@ -135,6 +135,71 @@ class AuthController extends BaseController
         }
         return view('auth/login', $data);
     }
+
+    public function login()
+{
+    $userModel = new User();
+
+    // Handle POST (AJAX request)
+    if ($this->request->getMethod() == 'POST') {
+        $rules = [
+            'email'    => 'required|valid_email',
+            'password' => 'required'
+        ];
+
+        if (! $this->validate($rules)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'errors' => $this->validator->getErrors()
+            ]);
+        }
+
+        $email = $this->request->getPost('email');
+        $password = $this->request->getPost('password');
+        $user = $userModel->where('email', $email)->first();
+
+        if (! $user) {
+            return $this->response->setJSON([
+                'status' => 'fail',
+                'message' => 'User not found. Please register first.'
+            ]);
+        }
+
+        // Check if user email is verified (optional)
+        if (isset($user['is_verified']) && $user['is_verified'] == 0) {
+            return $this->response->setJSON([
+                'status' => 'fail',
+                'message' => 'Please verify your email before logging in.'
+            ]);
+        }
+
+        // Verify password
+        if (! password_verify($password, $user['password'])) {
+            return $this->response->setJSON([
+                'status' => 'fail',
+                'message' => 'Invalid email or password.'
+            ]);
+        }
+
+        // Set session on success
+        session()->set([
+            'isLoggedIn' => true,
+            'userId'     => $user['id'],
+            'userName'   => $user['username'] ?? '',
+            'userEmail'  => $user['email']
+        ]);
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => 'Login successful. Redirecting...',
+            'redirect' => base_url('/employee')
+        ]);
+    }
+
+    // GET request → load login page
+    return view('auth/loginajax');
+}
+
 
     public function logout()
     {

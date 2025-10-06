@@ -1,0 +1,30 @@
+/* employee.css */
+.image-wrapper {
+    display: inline-block;
+    position: relative;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+.image-wrapper img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+.image-wrapper button {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    padding: 2px 5px;
+    font-size: 12px;
+}
+.property-row .form-control {
+    margin-bottom: 5px;
+}
+.container {
+    max-width: 800px;
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
